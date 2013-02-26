@@ -2,8 +2,7 @@ package codigoalvo.leap.alvogame;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import java.util.List;
+import java.util.Vector;
 import javax.swing.Timer;
 import codigoalvo.gameobject.*;
 import com.leapmotion.leap.Controller;
@@ -47,6 +46,7 @@ public class Board extends Frame implements ActionListener {
 		leapController = new Controller();
 
 		leapController.addListener(leapListener);
+		setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().createImage(""), new Point(), null));
 	}
 
 	public void paint(Graphics g) {
@@ -56,10 +56,11 @@ public class Board extends Frame implements ActionListener {
 	}
 
 	private void checaColisoes() {
-		Rectangle curRect = new Rectangle((int)(position.getX() - cursorSize / 2), (int)(position.getY() - cursorSize / 2), cursorSize, cursorSize);
+		Rectangle curRect = new Rectangle((int)(position.getX() - cursorSize / 2), (int)(position.getY() - cursorSize / 2), cursorSize,
+		                                  cursorSize);
 
 		synchronized (gameObjects) {
-			
+
 			if (lastObject == null) {
 				for (BaseGameObject gameObj : gameObjects) {
 					if (gameObj.getBounds().intersects(curRect)) {
@@ -89,7 +90,7 @@ public class Board extends Frame implements ActionListener {
 			}
 		}
 	}
-	
+
 	protected void desenhaCursor(Graphics2D g2d) {
 		if (position.getZ() < 0) {
 			if (lastObject == null) {
@@ -97,19 +98,19 @@ public class Board extends Frame implements ActionListener {
 				g2d.setColor(Color.GREEN);
 				g2d.drawOval(position.getX(), position.getY(), cursorSize, cursorSize);
 			} else {
-				lastObject.setX(position.getX()-lastObject.getWidth());
-				lastObject.setY(position.getY()-lastObject.getHeight());
+				lastObject.setX(position.getX() - lastObject.getWidth());
+				lastObject.setY(position.getY() - lastObject.getHeight());
 				lastObject.drawObject(g2d);
 			}
 		} else {
 			releaseObject();
 		}
 	}
-	
+
 	public void releaseObject() {
 		if (lastObject != null) {
 			lastObject.setVisible(false);
-			score += (100 * (grabedObjects)); //TODO: Colocar um multiplicador
+			score += (100 * (grabedObjects)); // TODO: Colocar um multiplicador
 			grabedObjects = 0;
 			lastObject = null;
 		}
@@ -152,7 +153,6 @@ public class Board extends Frame implements ActionListener {
 		desenhaObjetos(g2d);
 		desenhaCursor(g2d);
 		desenhaScore(g2d);
-		// Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().createImage(""), new Point(), null);
 		Toolkit.getDefaultToolkit().sync();
 	}
 
@@ -164,13 +164,13 @@ public class Board extends Frame implements ActionListener {
 	}
 
 	private void newObjects() {
-		int minObjs = (int)(Math.random()*5)+1;
+		int minObjs = (int)(Math.random() * 5) + 1;
 		if (gameObjects.size() < minObjs) {
-			int qtdNewObjs = (int)(Math.random()*9)+1;
+			int qtdNewObjs = (int)(Math.random() * 9) + 1;
 			for (int i = 0; i < qtdNewObjs; i++) {
 				gameObjects.add(new SolidGameObject((int)(Math.random() * 1000), (int)(Math.random() * 500), 30, 30));
 			}
 		}
-    }
+	}
 
 }
