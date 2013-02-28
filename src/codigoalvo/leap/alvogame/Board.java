@@ -22,6 +22,7 @@ public class Board extends Frame implements ActionListener {
 	private int oopsTimer = 0;
 	private long timer = 0;
 	private long newObjects = 0;
+	private Cursor originalCursor;
 
 	public Board() {
 		addKeyListener(new KeyListener() {
@@ -49,7 +50,26 @@ public class Board extends Frame implements ActionListener {
 		leapController = new Controller();
 
 		leapController.addListener(leapListener);
-		setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().createImage(""), new Point(), null));
+		originalCursor = getCursor();
+
+		if (leapController.isConnected()) {
+			setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().createImage(""), new Point(), null));
+		} else {
+			addMouseMotionListener(new MouseMotionListener() {
+
+				@Override
+				public void mouseMoved(MouseEvent mouseEv) {
+					position.setZ(0);
+				}
+
+				@Override
+				public void mouseDragged(MouseEvent mouseEv) {
+					position.setZ(-1);
+					position.setX(mouseEv.getX());
+					position.setY(mouseEv.getY());
+				}
+			});
+		}
 	}
 
 	public void paint(Graphics g) {
