@@ -19,6 +19,9 @@ public class Board extends Frame implements ActionListener {
 	private int grabedObjects = 0;
 	private Vector<BaseGameObject> gameObjects = new Vector<>();
 	private BaseGameObject lastObject;
+	private int oopsTimer = 0;
+	private long timer = 0;
+	private long newObjects = 0;
 
 	public Board() {
 		addKeyListener(new KeyListener() {
@@ -82,6 +85,8 @@ public class Board extends Frame implements ActionListener {
 							gameObjects.remove(gameObj);
 						} else {
 							grabedObjects *= -1;
+							oopsTimer++;
+							gameObjects.remove(gameObj);
 							releaseObject();
 						}
 						break;
@@ -110,7 +115,15 @@ public class Board extends Frame implements ActionListener {
 	public void releaseObject() {
 		if (lastObject != null) {
 			lastObject.setVisible(false);
-			score += (100 * (grabedObjects)); // TODO: Colocar um multiplicador
+			if (grabedObjects < 0)
+				grabedObjects *= 5;
+			else if (grabedObjects > 3)
+				grabedObjects *= 4;
+			else if (grabedObjects > 2)
+				grabedObjects *= 2;
+			score += (100 * (grabedObjects));
+			if (score < 0)
+				score = 0;
 			grabedObjects = 0;
 			lastObject = null;
 		}
@@ -121,25 +134,32 @@ public class Board extends Frame implements ActionListener {
 		Font small = new Font("Helvetica", Font.BOLD, 24);
 		Font big = new Font("Courier", Font.BOLD, 72);
 		FontMetrics metr = this.getFontMetrics(small);
-		g2d.setColor(Color.white);
+		g2d.setColor(Color.WHITE);
 		g2d.setFont(small);
 		g2d.drawString(msg, LeapAlvoGame.currentDisplayMode.getWidth() - 50 - metr.stringWidth(msg), 40);
+		if (oopsTimer > 20) {
+			oopsTimer = 0;
+		}
+		if (oopsTimer > 0) {
+			oopsTimer++;
+			g2d.setColor(Color.RED);
+		}
 		g2d.setFont(big);
 		g2d.drawString(String.valueOf(score), 30, 50 + 30);
+		if (!leapController.isConnected()) {
+			g2d.setColor(Color.RED);
+			g2d.setFont(small);
+			msg = "LEAP device disconnected!";
+			g2d.drawString(msg, LeapAlvoGame.currentDisplayMode.getWidth() - 50 - metr.stringWidth(msg),
+			               LeapAlvoGame.currentDisplayMode.getHeight() - 60);
+		}
 
 	}
 
 	private void desenhaObjetos(Graphics2D g2d) {
 		synchronized (gameObjects) {
 			for (BaseGameObject gameObj : gameObjects) {
-				gameObj.move();
-				if (gameObj.getX() < 0 || (gameObj.getX() + gameObj.getWidth()) > LeapAlvoGame.currentDisplayMode.getWidth())
-					gameObj.setSpeedX(gameObj.getSpeedX() * -1);
-
-				if (gameObj.getY() < 0 || (gameObj.getY() + gameObj.getHeight()) > LeapAlvoGame.currentDisplayMode.getHeight())
-					gameObj.setSpeedY(gameObj.getSpeedY() * -1);
 				gameObj.drawObject(g2d);
-				// System.out.println(gameObj.toString());
 			}
 		}
 	}
@@ -158,17 +178,44 @@ public class Board extends Frame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		timer++;
+		atualizaObjects();
 		checaColisoes();
 		repaint();
 		newObjects();
 	}
 
+	private void atualizaObjects() {
+		synchronized (gameObjects) {
+			for (BaseGameObject gameObj : gameObjects) {
+				gameObj.move();
+				if (gameObj.getX() < 0 ||
+					(gameObj.getX() + gameObj.getWidth()) > LeapAlvoGame.currentDisplayMode.getWidth())
+					gameObj.setSpeedX(gameObj.getSpeedX() * -1);
+
+				if (gameObj.getY() < 0 ||
+					(gameObj.getY() + gameObj.getHeight()) > LeapAlvoGame.currentDisplayMode.getHeight())
+					gameObj.setSpeedY(gameObj.getSpeedY() * -1);
+			}
+		}
+	}
+
 	private void newObjects() {
+		boolean drawNewObjects = false;
+		if (timer > (newObjects + 200)) {
+			newObjects = timer;
+			drawNewObjects = true;
+		}
 		int minObjs = (int)(Math.random() * 5) + 1;
 		if (gameObjects.size() < minObjs) {
+			drawNewObjects = true;
+		}
+		if (drawNewObjects) {
 			int qtdNewObjs = (int)(Math.random() * 9) + 1;
-			for (int i = 0; i < qtdNewObjs; i++) {
-				gameObjects.add(new SolidGameObject((int)(Math.random() * 1000), (int)(Math.random() * 500), 30, 30));
+			synchronized (gameObjects) {
+				for (int i = 0; i < qtdNewObjs; i++) {
+					gameObjects.add(new SolidGameObject((int)(Math.random() * 1000), (int)(Math.random() * 500), 30, 30));
+				}
 			}
 		}
 	}

@@ -31,23 +31,29 @@ public class LeapListener extends Listener {
 	}
 
 	public void onInit(Controller controller) {
-		System.out.println("Initialized");
+		if (debug)
+			System.out.println("Initialized");
 	}
 
 	public void onConnect(Controller controller) {
-		System.out.println("Connected");
-		if (debug && controller.calibratedScreens().count() > 0) {
-			System.out.println("Screens: " + controller.calibratedScreens().count());
-			System.out.println("Screen (0); Height: " + controller.calibratedScreens().get(0).heightPixels() + " Width: " + controller.calibratedScreens().get(0).widthPixels());
+		if (debug) {
+			System.out.println("Connected");
+			if (controller.calibratedScreens().count() > 0) {
+				System.out.println("Screens: " + controller.calibratedScreens().count());
+				System.out.println("Screen (0); Height: " + controller.calibratedScreens().get(0).heightPixels() + " Width: "
+				        + controller.calibratedScreens().get(0).widthPixels());
+			}
 		}
 	}
 
 	public void onDisconnect(Controller controller) {
-		System.out.println("Disconnected");
+		if (debug)
+			System.out.println("Disconnected");
 	}
 
 	public void onExit(Controller controller) {
-		System.out.println("Exited");
+		if (debug)
+			System.out.println("Exited");
 	}
 
 	/**
@@ -57,7 +63,8 @@ public class LeapListener extends Listener {
 	 *         Thanks to my teacher Dariel Mazzoni Maranhão for the help with proportion math calc.
 	 */
 	private int converteX(float x) {
-		float result = (((SCREEN_MAX_X - SCREEN_MIN_X) * x) / (LEAP_MAX_X - LEAP_MIN_X)) - LEAP_MIN_X * (SCREEN_MAX_X - SCREEN_MIN_X) / (LEAP_MAX_X - LEAP_MIN_X) + SCREEN_MIN_X;
+		float result = (((SCREEN_MAX_X - SCREEN_MIN_X) * x) / (LEAP_MAX_X - LEAP_MIN_X)) - LEAP_MIN_X * (SCREEN_MAX_X - SCREEN_MIN_X)
+		        / (LEAP_MAX_X - LEAP_MIN_X) + SCREEN_MIN_X;
 		return (int)result;
 	}
 
@@ -68,7 +75,8 @@ public class LeapListener extends Listener {
 	 *         Thanks to my teacher Dariel Mazzoni Maranhão for the help with proportion math calc.
 	 */
 	private int converteY(float y) {
-		float result = (((SCREEN_MAX_Y - SCREEN_MIN_Y) * y) / (LEAP_MIN_Y - LEAP_MAX_Y)) - LEAP_MAX_Y * (SCREEN_MAX_Y - SCREEN_MIN_Y) / (LEAP_MIN_Y - LEAP_MAX_Y) + SCREEN_MIN_Y;
+		float result = (((SCREEN_MAX_Y - SCREEN_MIN_Y) * y) / (LEAP_MIN_Y - LEAP_MAX_Y)) - LEAP_MAX_Y * (SCREEN_MAX_Y - SCREEN_MIN_Y)
+		        / (LEAP_MIN_Y - LEAP_MAX_Y) + SCREEN_MIN_Y;
 		return (int)result;
 	}
 
@@ -83,7 +91,8 @@ public class LeapListener extends Listener {
 		// Get the most recent frame and report some basic information
 		Frame frame = controller.frame();
 		if (debug) {
-			System.out.println("Frame id: " + frame.id() + ", timestamp: " + frame.timestamp() + ", hands: " + frame.hands().count() + ", fingers: " + frame.fingers().count() + ", tools: " + frame.tools().count());
+			System.out.println("Frame id: " + frame.id() + ", timestamp: " + frame.timestamp() + ", hands: " + frame.hands().count()
+			        + ", fingers: " + frame.fingers().count() + ", tools: " + frame.tools().count());
 		}
 
 		if (!frame.hands().empty()) {
@@ -107,7 +116,8 @@ public class LeapListener extends Listener {
 				int xPos = converteX(fingerPos.getX());
 				int yPos = converteY(fingerPos.getY());
 				if (debug) {
-					System.out.println("Vector: x:" + fingerPos.getX() + ", y:" + fingerPos.getY() + ", z:" + fingerPos.getZ() + " Posicao: " + position.toString());
+					System.out.println("Vector: x:" + fingerPos.getX() + ", y:" + fingerPos.getY() + ", z:" + fingerPos.getZ()
+					        + " Posicao: " + position.toString());
 				}
 				synchronized (position) {
 					position.setX(xPos);

@@ -44,6 +44,7 @@ public class LeapAlvoGame {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
 		originalDisplayMode = graphicsDevice.getDisplayMode();
+		currentDisplayMode = originalDisplayMode;
 		Board mainScreen = new Board();
 		graphicsDevice.setFullScreenWindow(mainScreen);
 		if (graphicsDevice.isDisplayChangeSupported()) {
@@ -54,7 +55,7 @@ public class LeapAlvoGame {
 
 	public static void restoreOriginalDisplayMode() {
 		graphicsDevice.setDisplayMode(originalDisplayMode);
-		graphicsDevice.setFullScreenWindow(null);
+		currentDisplayMode = originalDisplayMode; 
 	}
 
 	public static void main(String[] args) {
