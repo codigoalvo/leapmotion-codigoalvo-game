@@ -15,8 +15,13 @@ public class Board extends Frame implements ActionListener {
 	private Position position = new Position();
 	private int frameRate = 50;
 	private int cursorSize = 20;
+	private int initialObjects = 10;
 	private int score = 0;
 	private int grabedObjects = 0;
+	private boolean spawnByTime = true;
+	private boolean spawnByMinimal = true;
+	private boolean debug = false;
+	private StringBuilder debugMsg = new StringBuilder();
 	private Vector<BaseGameObject> gameObjects = new Vector<>();
 	private BaseGameObject lastObject;
 	private int oopsTimer = 0;
@@ -38,7 +43,7 @@ public class Board extends Frame implements ActionListener {
 				}
 			}
 		});
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < initialObjects; i++) {
 			gameObjects.add(new SolidGameObject((int)(Math.random() * 1000), (int)(Math.random() * 500), 30, 30));
 		}
 		setBackground(Color.BLACK);
@@ -79,6 +84,9 @@ public class Board extends Frame implements ActionListener {
 	}
 
 	private void checaColisoes() {
+		if (position.getZ() >= 0) // Do not check for collisions when cursor isn't visible.
+			return;
+
 		Rectangle curRect = new Rectangle((int)(position.getX() - cursorSize / 2), (int)(position.getY() - cursorSize / 2), cursorSize,
 		                                  cursorSize);
 
@@ -175,6 +183,14 @@ public class Board extends Frame implements ActionListener {
 		}
 
 	}
+	
+	private void desenhaDebugMsg(Graphics2D g2d) {
+		Font small = new Font("Helvetica", Font.BOLD, 12);
+		g2d.setColor(Color.YELLOW);
+		g2d.setFont(small);
+		g2d.drawString(debugMsg.toString(), 40, LeapAlvoGame.currentDisplayMode.getHeight() - 60);
+		debugMsg.delete(0, debugMsg.length());
+	}
 
 	private void desenhaObjetos(Graphics2D g2d) {
 		synchronized (gameObjects) {
@@ -193,6 +209,8 @@ public class Board extends Frame implements ActionListener {
 		desenhaObjetos(g2d);
 		desenhaCursor(g2d);
 		desenhaScore(g2d);
+		if (debug)
+			desenhaDebugMsg(g2d);
 		Toolkit.getDefaultToolkit().sync();
 	}
 
@@ -200,6 +218,8 @@ public class Board extends Frame implements ActionListener {
 	public void actionPerformed(ActionEvent event) {
 		timer++;
 		atualizaObjects();
+		if (debug)
+			debugCalculaDistancia();
 		checaColisoes();
 		repaint();
 		newObjects();
@@ -219,16 +239,33 @@ public class Board extends Frame implements ActionListener {
 			}
 		}
 	}
+	
+	private void debugCalculaDistancia() {
+		synchronized (gameObjects) {
+			for (int i = 0; i < gameObjects.size(); i++) {
+				BaseGameObject gameObj1 = gameObjects.get(i);
+				for (int j = i+1; j < gameObjects.size(); j++) {
+					BaseGameObject gameObj2 = gameObjects.get(j);
+					int dist = gameObj1.distanceTo(gameObj2);
+					if (debugMsg.length() > 0)
+						debugMsg.append("   |   ");
+					debugMsg.append(gameObj1.toString()).append(" -> ").append(gameObj2.toString()).append(" = ").append(dist);
+				}
+			}
+		}
+	}
 
 	private void newObjects() {
 		boolean drawNewObjects = false;
-		if (timer > (newObjects + 200)) {
+		if (spawnByTime  &&  timer > (newObjects + 200)) {
 			newObjects = timer;
 			drawNewObjects = true;
 		}
-		int minObjs = (int)(Math.random() * 5) + 1;
-		if (gameObjects.size() < minObjs) {
-			drawNewObjects = true;
+		if (spawnByMinimal) {
+			int minObjs = (int)(Math.random() * 5) + 1;
+			if (gameObjects.size() < minObjs) {
+				drawNewObjects = true;
+			}
 		}
 		if (drawNewObjects) {
 			int qtdNewObjs = (int)(Math.random() * 9) + 1;

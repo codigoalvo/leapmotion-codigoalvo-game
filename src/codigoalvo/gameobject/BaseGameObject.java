@@ -1,25 +1,17 @@
 package codigoalvo.gameobject;
 
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
-public abstract class BaseGameObject implements Screen2DGameObject, Moveable2DGameObject, ViewableGameObject {
+public abstract class BaseGameObject implements Screen2DGameObject, Moveable2DGameObject, ViewableGameObject, RelativeGameObject {
 
 	public BaseGameObject() {
 		super();
 	}
 
-	public abstract Rectangle2D getBounds();
-	
 	public abstract Enum getTipo();
 
 	public abstract void drawObject(Graphics graphics);
-
-	public void printPosition() {
-		StringBuilder pos = new StringBuilder();
-		pos.append("x: ").append(x).append(", y:").append(y);
-		System.out.println(pos.toString());
-	}
 
 	protected int minSpeedX;
 	protected int maxSpeedX;
@@ -84,26 +76,26 @@ public abstract class BaseGameObject implements Screen2DGameObject, Moveable2DGa
 
 	public void setSpeedX(int speedX) {
 		boolean neg = speedX < 0;
-		speedX = (neg?speedX*-1:speedX); //deixa positivo para fazer comparações
+		speedX = (neg ? speedX * -1 : speedX); // deixa positivo para fazer comparações
 		if (speedX > this.maxSpeedX)
 			this.speedX = this.maxSpeedX;
 		else if (speedX < this.minSpeedX)
 			this.speedX = this.minSpeedX; // volta para negativo caso era negativo originalmente
 		else
 			this.speedX = speedX;
-		this.speedX = (neg?this.speedX*-1:this.speedX);
+		this.speedX = (neg ? this.speedX * -1 : this.speedX);
 	}
 
 	public void setSpeedY(int speedY) {
 		boolean neg = speedY < 0;
-		speedY = (neg?speedY*-1:speedY); //deixa positivo para fazer comparações
+		speedY = (neg ? speedY * -1 : speedY); // deixa positivo para fazer comparações
 		if (speedY > this.maxSpeedY)
 			this.speedY = this.maxSpeedY;
 		else if (speedY < this.minSpeedY)
 			this.speedY = this.minSpeedY;
 		else
 			this.speedY = speedY;
-		this.speedY = (neg?this.speedY*-1:this.speedY); // volta para negativo caso era negativo originalmente
+		this.speedY = (neg ? this.speedY * -1 : this.speedY); // volta para negativo caso era negativo originalmente
 	}
 
 	public void setVisible(boolean visible) {
@@ -119,51 +111,69 @@ public abstract class BaseGameObject implements Screen2DGameObject, Moveable2DGa
 		this.y += this.speedY;
 	}
 
-    public int getMinSpeedX() {
-	    return minSpeedX;
-    }
+	public int getMinSpeedX() {
+		return minSpeedX;
+	}
 
-    public int getMaxSpeedX() {
-	    return maxSpeedX;
-    }
+	public int getMaxSpeedX() {
+		return maxSpeedX;
+	}
 
-    public int getMinSpeedY() {
-	    return minSpeedY;
-    }
+	public int getMinSpeedY() {
+		return minSpeedY;
+	}
 
-    public int getMaxSpeedY() {
-	    return maxSpeedY;
-    }
+	public int getMaxSpeedY() {
+		return maxSpeedY;
+	}
 
-    public void setMinSpeed(int minSpeed) {
+	public void setMinSpeed(int minSpeed) {
 		this.minSpeedX = minSpeed;
 		this.minSpeedY = minSpeed;
-    }
+	}
 
-    public void setMaxSpeed(int maxSpeed) {
-    	this.maxSpeedX = maxSpeed;
-    	this.maxSpeedY = maxSpeed;
-    }
-    
-    public void setMinSpeedX(int minSpeedX) {
+	public void setMaxSpeed(int maxSpeed) {
+		this.maxSpeedX = maxSpeed;
+		this.maxSpeedY = maxSpeed;
+	}
+
+	public void setMinSpeedX(int minSpeedX) {
 		this.minSpeedX = minSpeedX;
-    }
+	}
 
-    public void setMaxSpeedX(int maxSpeedX) {
-    	this.maxSpeedX = maxSpeedX;
-    }
+	public void setMaxSpeedX(int maxSpeedX) {
+		this.maxSpeedX = maxSpeedX;
+	}
 
-    public void setMinSpeedY(int minSpeedY) {
-	    this.minSpeedY = minSpeedY;
-    }
+	public void setMinSpeedY(int minSpeedY) {
+		this.minSpeedY = minSpeedY;
+	}
 
-    public void setMaxSpeedY(int maxSpeedY) {
-	    this.maxSpeedY = speedY;
-    }
+	public void setMaxSpeedY(int maxSpeedY) {
+		this.maxSpeedY = speedY;
+	}
 
-    public void stop() {
-    	this.speedX = 0;
-    	this.speedY = 0;
-    }
+	public void stop() {
+		this.speedX = 0;
+		this.speedY = 0;
+	}
+
+	public Rectangle2D getBounds() {
+		return new Rectangle(getX(), getY(), getWidth(), getHeight());
+	}
+
+	public void printPosition() {
+		StringBuilder pos = new StringBuilder();
+		pos.append("x: ").append(x).append(", y:").append(y);
+		System.out.println(pos.toString());
+	}
+
+	public int distanceTo(Screen2DGameObject otherObject) {
+		int xA = this.getX()+(int)(this.getWidth()/2);
+		int xB = otherObject.getX()+(int)(otherObject.getWidth()/2);
+		int yA = this.getY()+(int)(this.getHeight()/2);
+		int yB = otherObject.getY()+(int)(otherObject.getHeight()/2);
+		return (int)Math.sqrt(Math.pow(xB - xA, 2) + Math.pow(yB - yA, 2));
+	}
 
 }
