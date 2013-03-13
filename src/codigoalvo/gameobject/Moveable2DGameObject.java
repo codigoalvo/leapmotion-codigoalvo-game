@@ -1,7 +1,7 @@
 package codigoalvo.gameobject;
 
 
-public interface Moveable2DGameObject {
+public interface Moveable2DGameObject extends Screen2DGameObject{
 	
 	public int getMinSpeedX();
 	public int getMaxSpeedX();
