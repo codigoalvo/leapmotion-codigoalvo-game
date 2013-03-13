@@ -15,15 +15,15 @@ codigoalvo@gmail.com
 
 Updates:
 
+13/03/2013
+ - code for magnetic field objects. not in action yet.
+
 28/02/2013
  - implements mouse usage instead from LEAP when device isn't connected;
  - fix a bug where collisions was verified even when cursor wasn't visible;
  - implements a debug msg visible on screen on bottom left corner;
  - implements distance between 2 objects check for future magnectic field phisics;
  - change some hardcoded data to variables in main board;
-
-13/03/2013
- - code for magnetic field objects. not in action yet.
 
 
 Future features
