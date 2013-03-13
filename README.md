@@ -22,6 +22,10 @@ Updates:
  - implements distance between 2 objects check for future magnectic field phisics;
  - change some hardcoded data to variables in main board;
 
+13/03/2013
+ - code for magnetic field objects. not in action yet.
+
+
 Future features
 
  - randon magnetic fields to change object direction/speed;
