@@ -7,12 +7,16 @@ public abstract class BaseGameObject implements Screen2DGameObject, Moveable2DGa
 
 	public BaseGameObject() {
 		super();
+		id = ++CTD;
 	}
+
+	public static int CTD = 0;
 
 	public abstract Enum getTipo();
 
 	public abstract void drawObject(Graphics graphics);
 
+	protected int id;
 	protected int minSpeedX;
 	protected int maxSpeedX;
 	protected int minSpeedY;
@@ -25,6 +29,10 @@ public abstract class BaseGameObject implements Screen2DGameObject, Moveable2DGa
 	protected int speedY;
 	protected boolean visible;
 	protected boolean solid;
+
+	public int getId() {
+		return id;
+	}
 
 	public int getX() {
 		return x;
@@ -151,6 +159,14 @@ public abstract class BaseGameObject implements Screen2DGameObject, Moveable2DGa
 
 	public void setMaxSpeedY(int maxSpeedY) {
 		this.maxSpeedY = speedY;
+	}
+
+	public void incrementSpeedX(int incSpeedX) {
+	    setSpeedX(getSpeedX()+incSpeedX);
+	}
+
+	public void incrementSpeedY(int incSpeedY) {
+	    setSpeedY(getSpeedY()+incSpeedY);
 	}
 
 	public void stop() {

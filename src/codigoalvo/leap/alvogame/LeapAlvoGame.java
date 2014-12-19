@@ -28,10 +28,10 @@ public class LeapAlvoGame {
 					// Adiciona uma margem de 5% de pixels em cada borda da tela.
 					int percX = mode.getWidth()/20;
 					int percY = mode.getHeight()/20;
-					LeapListener.SCREEN_MIN_X = (0 - percX);
-					LeapListener.SCREEN_MIN_Y = (0 - percY);
-					LeapListener.SCREEN_MAX_X = (mode.getWidth()+percX);
-					LeapListener.SCREEN_MAX_Y = (mode.getHeight()+percY);
+//					LeapListener.SCREEN_MIN_X = (0 - percX);
+//					LeapListener.SCREEN_MIN_Y = (0 - percY);
+//					LeapListener.SCREEN_MAX_X = (mode.getWidth()+percX);
+//					LeapListener.SCREEN_MAX_Y = (mode.getHeight()+percY);
 					return currentDisplayMode;
 				}
 			}

@@ -5,22 +5,22 @@ import java.awt.event.*;
 import java.util.Vector;
 import javax.swing.Timer;
 import codigoalvo.gameobject.*;
-import com.leapmotion.leap.Controller;
+//import com.leapmotion.leap.Controller;
 
 public class Board extends Frame implements ActionListener {
 
-	private Controller leapController;
-	private LeapListener leapListener;
+//	private Controller leapController;
+//	private LeapListener leapListener;
 	private Timer drawTimer;
 	private Position position = new Position();
-	private int frameRate = 50;
+	private int frameRate = 60;
 	private int cursorSize = 20;
 	private int initialObjects = 10;
 	private int score = 0;
 	private int grabedObjects = 0;
 	private boolean spawnByTime = true;
 	private boolean spawnByMinimal = true;
-	private boolean debug = false;
+	private boolean debug = true;
 	private StringBuilder debugMsg = new StringBuilder();
 	private Vector<BaseGameObject> gameObjects = new Vector<>();
 	private BaseGameObject lastObject;
@@ -28,6 +28,7 @@ public class Board extends Frame implements ActionListener {
 	private long timer = 0;
 	private long newObjects = 0;
 	private Cursor originalCursor;
+	private MagneticFieldGameObject magneticObj;
 
 	public Board() {
 		addKeyListener(new KeyListener() {
@@ -43,6 +44,8 @@ public class Board extends Frame implements ActionListener {
 				}
 			}
 		});
+		magneticObj = new MagneticFieldGameObject((int)(LeapAlvoGame.currentDisplayMode.getWidth() / 2),
+		                                          (int)(LeapAlvoGame.currentDisplayMode.getHeight() / 2), 1, 300);
 		for (int i = 0; i < initialObjects; i++) {
 			gameObjects.add(new SolidGameObject((int)(Math.random() * 1000), (int)(Math.random() * 500), 30, 30));
 		}
@@ -51,15 +54,15 @@ public class Board extends Frame implements ActionListener {
 		drawTimer = new Timer(frameRate, this);
 		drawTimer.start();
 
-		leapListener = new LeapListener(position);
-		leapController = new Controller();
+//		leapListener = new LeapListener(position);
+//		leapController = new Controller();
 
-		leapController.addListener(leapListener);
+//		leapController.addListener(leapListener);
 		originalCursor = getCursor();
 
-		if (leapController.isConnected()) {
-			setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().createImage(""), new Point(), null));
-		} else {
+//		if (leapController.isConnected()) {
+//			setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().createImage(""), new Point(), null));
+//		} else {
 			addMouseMotionListener(new MouseMotionListener() {
 
 				@Override
@@ -74,7 +77,7 @@ public class Board extends Frame implements ActionListener {
 					position.setY(mouseEv.getY());
 				}
 			});
-		}
+//		}
 	}
 
 	public void paint(Graphics g) {
@@ -174,16 +177,16 @@ public class Board extends Frame implements ActionListener {
 		}
 		g2d.setFont(big);
 		g2d.drawString(String.valueOf(score), 30, 50 + 30);
-		if (!leapController.isConnected()) {
-			g2d.setColor(Color.RED);
-			g2d.setFont(small);
-			msg = "LEAP device disconnected!";
-			g2d.drawString(msg, LeapAlvoGame.currentDisplayMode.getWidth() - 50 - metr.stringWidth(msg),
-			               LeapAlvoGame.currentDisplayMode.getHeight() - 60);
-		}
+//		if (!leapController.isConnected()) {
+//			g2d.setColor(Color.RED);
+//			g2d.setFont(small);
+//			msg = "LEAP device disconnected!";
+//			g2d.drawString(msg, LeapAlvoGame.currentDisplayMode.getWidth() - 50 - metr.stringWidth(msg),
+//			               LeapAlvoGame.currentDisplayMode.getHeight() - 60);
+//		}
 
 	}
-	
+
 	private void desenhaDebugMsg(Graphics2D g2d) {
 		Font small = new Font("Helvetica", Font.BOLD, 12);
 		g2d.setColor(Color.YELLOW);
@@ -209,14 +212,22 @@ public class Board extends Frame implements ActionListener {
 		desenhaObjetos(g2d);
 		desenhaCursor(g2d);
 		desenhaScore(g2d);
-		if (debug)
+		if (debug) {
 			desenhaDebugMsg(g2d);
+			desenhaMagnetic(g2d);
+		}
 		Toolkit.getDefaultToolkit().sync();
 	}
+
+	private void desenhaMagnetic(Graphics2D g2d) {
+		g2d.setColor(Color.DARK_GRAY);
+		g2d.drawOval(magneticObj.getX()-magneticObj.getMagneticRadius(), magneticObj.getY()-magneticObj.getMagneticRadius(), magneticObj.getMagneticRadius()*2, magneticObj.getMagneticRadius()*2);
+    }
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		timer++;
+		aplicaMagnetismo();
 		atualizaObjects();
 		if (debug)
 			debugCalculaDistancia();
@@ -225,26 +236,41 @@ public class Board extends Frame implements ActionListener {
 		newObjects();
 	}
 
+	private void aplicaMagnetismo() {
+		synchronized (gameObjects) {
+			for (BaseGameObject gameObj : gameObjects) {
+				if (magneticObj.isForceAffectable(gameObj)) {
+					String debugMsg = "";
+					if (debug)
+						debugMsg = "["+gameObj.getId()+"]: "+gameObj.getSpeedX()+", "+gameObj.getSpeedY();
+					magneticObj.applyForce(gameObj);
+					if (debug) {
+						debugMsg += " -> "+gameObj.getSpeedX()+", "+gameObj.getSpeedY();
+						System.out.println(debugMsg);
+					}
+				}
+			}
+		}
+    }
+
 	private void atualizaObjects() {
 		synchronized (gameObjects) {
 			for (BaseGameObject gameObj : gameObjects) {
 				gameObj.move();
-				if (gameObj.getX() < 0 ||
-					(gameObj.getX() + gameObj.getWidth()) > LeapAlvoGame.currentDisplayMode.getWidth())
+				if (gameObj.getX() < 0 || (gameObj.getX() + gameObj.getWidth()) > LeapAlvoGame.currentDisplayMode.getWidth())
 					gameObj.setSpeedX(gameObj.getSpeedX() * -1);
 
-				if (gameObj.getY() < 0 ||
-					(gameObj.getY() + gameObj.getHeight()) > LeapAlvoGame.currentDisplayMode.getHeight())
+				if (gameObj.getY() < 0 || (gameObj.getY() + gameObj.getHeight()) > LeapAlvoGame.currentDisplayMode.getHeight())
 					gameObj.setSpeedY(gameObj.getSpeedY() * -1);
 			}
 		}
 	}
-	
+
 	private void debugCalculaDistancia() {
 		synchronized (gameObjects) {
 			for (int i = 0; i < gameObjects.size(); i++) {
 				BaseGameObject gameObj1 = gameObjects.get(i);
-				for (int j = i+1; j < gameObjects.size(); j++) {
+				for (int j = i + 1; j < gameObjects.size(); j++) {
 					BaseGameObject gameObj2 = gameObjects.get(j);
 					int dist = gameObj1.distanceTo(gameObj2);
 					if (debugMsg.length() > 0)
@@ -257,7 +283,7 @@ public class Board extends Frame implements ActionListener {
 
 	private void newObjects() {
 		boolean drawNewObjects = false;
-		if (spawnByTime  &&  timer > (newObjects + 200)) {
+		if (spawnByTime && timer > (newObjects + 200)) {
 			newObjects = timer;
 			drawNewObjects = true;
 		}

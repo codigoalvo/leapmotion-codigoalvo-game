@@ -24,8 +24,8 @@ public class SolidGameObject extends BaseGameObject {
 		setWidth(width);
 		setHeight(height);
 		setSolid(true);
-		setMinSpeed(2);
-		setMaxSpeed(10);
+		setMinSpeed(0);
+		setMaxSpeed(40);
 		setSpeedX(1 + (int)(Math.random() * 5));
 		setSpeedY(1 + (int)(Math.random() * 5));
 	}
